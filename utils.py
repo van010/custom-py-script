@@ -1,5 +1,6 @@
 import os
 import re
+import datetime
 import pymysql
 import config as cfg
 from zipfile import ZipFile
@@ -48,15 +49,6 @@ def get_all_compressed_files(path):
         if '.j01' in file:
             compressed_files['jpa'].append(file)
 
-    # for file in all_files:
-    #     if '.zip' in str(file):
-    #         compressed_files['zip'].append(file)
-    #         compressed_files['all'].append(file)
-    #     if '.jpa' in str(file):
-    #         compressed_files['jpa'].append(file)
-    #         compressed_files['all'].append(file)
-    # print(compressed_files)
-
     return compressed_files
 
 
@@ -99,18 +91,14 @@ def create_folder(folder_name):
     if not os.path.exists(folder_name):
         os.makedirs(folder_name)
     # else:
-    #     print(f"""
-    #     ========================================================
-    #     {color('warning')}Removing old folder: {folder_name} {color('endc')}
-    #     """)
-    #     option = str(input('Remove a folder? y/n: '))
-    #     if option == 'n': exit()
-    #     os.system(f"sudo rm -r {folder_name}")
-    #     print(f"""
-    #             {color('okgreen')}Removing success!{color('endc')}
-    #             ========================================================
-    #             """)
-    #     sleep(.5)
+    #     print(f"========================================================")
+    #     option = str(input(f'{color("warning")}Remove folder: {folder_name}?{color("endc")} y/n: '))
+    #     if option == 'y':
+    #         os.system(f"sudo rm -r {folder_name}")
+    #         print(f"""{color('okgreen')}Removing success!{color('endc')}
+    #         ========================================================
+    #         """)
+    #         sleep(.5)
 
 
 def clear_special_chars(sentence, unwanted_words=[]):
@@ -123,6 +111,12 @@ def clear_special_chars(sentence, unwanted_words=[]):
     if unwanted_words:
         return ' '.join([word for word in lower_word.split(' ') if word not in unwanted_words]).strip()
     return lower_word
+
+
+def remove_small_word(words, char):
+    split_words = words.lower().split(' ')
+    split_words = [ele for ele in split_words if ele not in unwanted_words]
+    return char.join(split_words).strip()
 
 
 def extract_zip(file, name_folder, file_type='zip'):
@@ -395,18 +389,45 @@ def classify_files(destiny):
                     run_command(f"mv {path_to_file} {path_folder_format}")
                     msg(f'{path_to_file}')
 
-    # print(file_with_format)
-    exit()
-    # list all file
 
-    # get all file tails
+def convert_to_mp3(option):
+    _date = datetime.datetime.now()
+    current_day = f'{_date.year}-{_date.month}-{_date.day}'
+    # video_path = os.getcwd()
+    video_path = cfg.video_path
+    rename_folder = cfg.rename_folder
+    render_folder = cfg.render_folder
 
-    # create a parent folder
+    all_files = os.listdir(video_path)
+    if len(all_files) == 0: exit('No video file to Convert!')
 
-    # create sub-folders inside parent folder
+    create_folder(cfg.render_folder)
+    # all_files = [_file.lower().strip() for _file in all_files]
+    # capitalized_name = [name.title() for name in all_files]
+    for format_ in cfg.video_formats:
+        for file_ in all_files:
+            if format_ in file_:
+                create_folder(rename_folder)
+                create_folder(f"{rename_folder}/{str(current_day)}")
+                raw_name = file_.split(format_)[0]
+                new_file = f'{remove_small_word(clear_special_chars(raw_name, cfg.mp3_unwanted_words), "-")}.mp3'.capitalize()
+                old_file_path = os.path.join(video_path, file_)
+                # new_file_path = os.path.join(video_path + f'/{rename_folder}/' + str(date), new_file)
+                new_file_path = os.path.join(video_path + f'/{rename_folder}', new_file)
 
-    # move all files had the same tail
-# classify_files('')
+                render_path = f"{video_path}/{render_folder}"
+                create_folder(f"{render_path}/{str(current_day)}")
+
+                render_to_mp3_path = os.path.join(f"{render_path}/{current_day}", new_file)
+                os.rename(old_file_path, new_file_path)
+                try:
+                    run_command(
+                        f"ffmpeg -i {new_file_path} -vn -acodec libmp3lame -ac 2 -ab 160k -ar 48000 {render_to_mp3_path}")
+                    os.rename(render_to_mp3_path,
+                              os.path.join(f"{render_path}/{str(current_day)}", ' '.join(new_file.split('-'))))
+                except NameError:
+                    print(NameError)
+
 
 # install a new Joomla site
 def main():

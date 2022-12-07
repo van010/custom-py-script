@@ -53,6 +53,10 @@ def list_to_do(arg):
         10: {
             'title': 'Classify Files',
             'action': 'classify_files'
+        },
+        11: {
+            'title': 'Convert .mp4 -> .mp3',
+            'action': 'convert_to_mp3'
         }
     }
     return [switcher, switcher.get(arg, "nothing")]
@@ -115,6 +119,10 @@ def classify_files(destiny=''):
     #     utils.msg('Not a destination! Kindly check again!', 'fail')
     #     return
     getattr(utils, 'classify_files')(destiny)
+
+
+def convert_to_mp3(option=''):
+    getattr(utils, 'convert_to_mp3')(option)
 
 
 def list_all_tasks():
