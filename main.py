@@ -63,13 +63,13 @@ def list_to_do(arg):
 
 
 def automate_ja():
-    print('Installing site...')
+    print('Installing Joomla site...')
     getattr(utils, 'main')()
 
 
 def install_fixbugs_site():
+    utils.msg('Install fixbug sites...')
     getattr(utils, 'run_install_fixbug_site')()
-    pass
 
 
 def create_sql_db():
@@ -78,42 +78,43 @@ def create_sql_db():
 
 
 def drop_a_mysql_db():
+    utils.msg('Drop a single Database...')
     db_name = str(input('Type db name: '))
     getattr(utils, 'drop_db')(db_name)
-    pass
 
 
 def restart_apache_():
     print('Restarting apache...')
     getattr(restart_apache, 'run_restart_apache')()
-    pass
 
 
 def switch_php_ver(php_dis='', php_en=''):
     print('Switching Php version...')
     getattr(switch_php_version, 'run_switch_php_ver')(php_dis, php_en)
-    pass
 
 
 def set_owner_(user='', path=''):
+    utils.msg('Set Owner for path...')
     getattr(set_owner, 'run_set_owner')(user, path)
-    pass
 
 
 def remove_installed_sites(name_folder=''):
+    utils.msg('Remove installed sites...')
     getattr(utils, 'remove_installed_sites')(name_folder)
-    pass
 
 
 def apache_test_config():
+    utils.msg('Test apache config...')
     os.system('apachectl configtest')
 
 
 def apache_check_status():
+    utils.msg('Check apache status...')
     os.system('systemctl status apache2')
 
 
 def classify_files(destiny=''):
+    utils.msg('Classify Files...')
     # destiny = str(input('Enter destination: '))
     # if not os.path.isdir(destiny):
     #     utils.msg('Not a destination! Kindly check again!', 'fail')
@@ -122,6 +123,7 @@ def classify_files(destiny=''):
 
 
 def convert_to_mp3(option=''):
+    utils.msg('Convert to mp3...')
     getattr(utils, 'convert_to_mp3')(option)
 
 
