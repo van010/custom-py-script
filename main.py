@@ -57,6 +57,10 @@ def list_to_do(arg):
         11: {
             'title': 'Convert .mp4 -> .mp3',
             'action': 'convert_to_mp3'
+        },
+        12: {
+            'title': 'Convert .heic -> jpg',
+            'action': 'convert_to_jpg'
         }
     }
     return [switcher, switcher.get(arg, "nothing")]
@@ -64,7 +68,7 @@ def list_to_do(arg):
 
 def automate_ja():
     print('Installing Joomla site...')
-    getattr(utils, 'main')()
+    getattr(utils, 'automate_ja')()
 
 
 def install_fixbugs_site():
@@ -125,6 +129,12 @@ def classify_files(destiny=''):
 def convert_to_mp3(option=''):
     utils.msg('Convert to mp3...')
     getattr(utils, 'convert_to_mp3')(option)
+
+
+def convert_to_jpg(destiny='', format=''):
+    utils.msg(f'Converting to {format.upper()}')
+    getattr(utils, 'convert_to_jpg')(destiny, format)
+
 
 
 def list_all_tasks():

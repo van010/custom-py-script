@@ -125,13 +125,19 @@ def extract_zip(file, name_folder, file_type='zip'):
 
     if file_type == 'jpa':
         to_path = f"{server_path}/fix-bugs/fix/"
+        kickstart = f'{server_path}/fix-bugs/backup/kickstart/'
         path_to_extract = os.path.join(to_path, name_folder)
         create_folder(path_to_extract)
         for _file in file:
             os.system(f"cp -v {destination}/{_file} {path_to_extract}")
+        if not os.path.isdir(kickstart):
+            create_folder(kickstart)
+            msg(f'{kickstart} is not a directory or Empty!')
+            _exit('n')
         os.system(f"cp -v {server_path}/fix-bugs/backup/kickstart/* {path_to_extract}")
-        run_command(f"sudo -S chown -R www-data.vangogh {path_to_extract}/")
+        run_command(f"sudo -S chown -R www-data.{cfg.facl_user} {path_to_extract}/")
         if create_db('fixbugs_' + name_folder.replace('-', '_')):
+            create_folder(f'{destination}/Compressed/site-user-backup/')
             for _file in file:
                 run_command(f"mv {destination}/{_file} {destination}/Compressed/site-user-backup/")
             show_ref(to_path, name_folder, 'jpa')
@@ -160,11 +166,12 @@ def extract_zip(file, name_folder, file_type='zip'):
         except RuntimeError as err:
             print(err)
     # set folder owner
-    run_command(f"sudo -S chown -R www-data.vangogh {path_to_extract}/")
+    run_command(f"sudo -S chown -R www-data.{cfg.facl_user} {path_to_extract}/")
     # set other user permission to this folder
-    run_command(f"sudo -S setfacl -R -m u:vangogh:wxr {path_to_extract}/")
+    run_command(f"sudo -S setfacl -R -m u:{cfg.facl_user}:wxr {path_to_extract}/")
 
     if create_db(name_folder.replace('-', '_')):
+        create_folder(f'{destination}/Compressed/Temps/')
         run_command(f"mv {destination}/{file} {destination}/Compressed/Temps/")
         show_ref(to_path, name_folder)
 
@@ -273,9 +280,10 @@ def run_install_fixbug_site():
     msg("""
             + n or Empty: cancel
             + choose folders to DO!
+            + multiple: 0 1 2 ... <to execute>
             """, 'warning')
 
-    _option = str(input('option: '))  # empty => delete all, if 0, 1 => keep
+    _option = str(input('option: '))  # empty => cancel, if 0 1 2 ... => to execute
     _exit(_option)
     _option = [] if _option.strip() == '' else _option.split(' ')
 
@@ -340,14 +348,14 @@ def remove_installed_sites(_name_folder):
 
 
 def classify_files(destiny):
-    msg('In Developing...')
+    # msg('In Developing...')
     # ================================================
     # dev create folder, parent-folder -> sub-folder
     # ================================================
 
-    exit()
+    # exit()
 
-    destiny = '/home/vangogh/Pictures/travel/30-10-22-binh-lieu-quang-ninh/imgs'
+    # destiny = '/home/vangogh/Pictures/travel/30-10-22-binh-lieu-quang-ninh/imgs'
     destination = destiny if destiny != '' else str(input('Enter destination: '))
     if not os.path.isdir(destination):
         msg('Not a destination! Kindly check again!', 'fail')
@@ -391,6 +399,7 @@ def classify_files(destiny):
 
 
 def convert_to_mp3(option):
+    # add option: add a path > convert all video file in this folder to mp3
     _date = datetime.datetime.now()
     current_day = f'{_date.year}-{_date.month}-{_date.day}'
     # video_path = os.getcwd()
@@ -430,7 +439,7 @@ def convert_to_mp3(option):
 
 
 # install a new Joomla site
-def main():
+def automate_ja():
     zip_files = get_all_compressed_files(destination)['zip']
 
     if len(zip_files) == 0:
@@ -445,7 +454,27 @@ def main():
         try:
             main_file = int(input(
                 f"\n{color('okcyan')}Type a File to do {color('warning')}<int type>{color('endc')}{color('endc')} "))
+            if main_file == -1: _exit('n')
             name_folder = str(input(f'\n{color("okcyan")}Enter folder name {color("endc")}: '))
             extract_zip(zip_files[main_file], name_folder)
         except ValueError as err:
             print(f"{err}")
+
+
+def convert_to_jpg(destiny, format='jpg'):
+    msg('In progress!', 'notice')
+    exit()
+    _des = destiny
+    while not os.path.isdir(_des):
+        msg('This path is not a directory! Kindly check again.', 'warning')
+        _des = str(input('Enter a directory: '))
+
+    # /media/vanhs/084ad0f6-fe03-4469-aa8f-a69b6e9ec3ad/home/vangogh/Pictures/travel/30-10-22-binh-lieu-quang-ninh/imgs/heic-folder-test/
+    run_command(f'cd {_des}')
+    # run_command('for file in *.HEIC; do heif-convert $file ${file/%.HEIC/.jpg}; done')
+
+
+    # if not os.path.isdir(destiny):
+    #     msg('This path is not a directory! Check agan', 'warning')
+    #     _exit('n')
+    # run_command(f'cd {destiny}')

@@ -3,8 +3,10 @@
 # directories
 # ================================================
 destination = '/home/vangogh/Downloads'
+# destination = '/media/vanhs/084ad0f6-fe03-4469-aa8f-a69b6e9ec3ad/home/vangogh/Downloads'
 server_path = '/var/www/html/dev'
 video_path = '/home/vangogh/Downloads/Video'
+# video_path = '/media/vanhs/084ad0f6-fe03-4469-aa8f-a69b6e9ec3ad/home/vangogh/Downloads/Video'
 
 render_folder = 'render-to-mp3'
 rename_folder = 'renamed-folder'
@@ -24,3 +26,4 @@ mp3_unwanted_words = {'ytb', 'youtube', 'hd', 'official', 'best', 'full', 'album
 host = 'localhost'
 db_username = 'vangogh'
 db_password = '#vanhs@xyz'
+facl_user = 'vangogh'
