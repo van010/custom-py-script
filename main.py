@@ -61,6 +61,14 @@ def list_to_do(arg):
         12: {
             'title': 'Convert .heic -> jpg',
             'action': 'convert_to_jpg'
+        },
+        13: {
+            'title': 'export db',
+            'action': 'export_mysql_db',
+        },
+        14: {
+            'title': 'import db',
+            'action': 'import_mysql_db',
         }
     }
     return [switcher, switcher.get(arg, "nothing")]
@@ -135,6 +143,16 @@ def convert_to_jpg(destiny='', format=''):
     utils.msg(f'Converting to {format.upper()}')
     getattr(utils, 'convert_to_jpg')(destiny, format)
 
+
+def export_mysql_db(dbname='', destination=''):
+    _des = destination if len(destination) > 0 else '$HOME'
+    utils.msg(f'Exporting db: {dbname.upper()} -> {_des}')
+    getattr(utils, 'export_mysql_db')(dbname, _des)
+
+
+def import_mysql_db(dbname='', source=''):
+    utils.msg(f'Importing db...')
+    getattr(utils, 'import_mysql_db')(dbname, source)
 
 
 def list_all_tasks():

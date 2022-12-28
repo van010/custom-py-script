@@ -2,6 +2,7 @@ import os
 import re
 import datetime
 import pymysql
+import logging
 import config as cfg
 from zipfile import ZipFile
 from time import sleep
@@ -196,6 +197,7 @@ def show_ref(to_path, name_folder, file_type=''):
 def msg(message, type='success'):
     notify = {
         'success': color('okgreen'),
+        'success1': color('okcyan'),
         'fail': color('fail'),
         'warning': color('warning'),
         'notice': color('header'),
@@ -478,3 +480,77 @@ def convert_to_jpg(destiny, format='jpg'):
     #     msg('This path is not a directory! Check agan', 'warning')
     #     _exit('n')
     # run_command(f'cd {destiny}')
+
+
+def export_mysql_db(dbname, destiny):
+    my_cursor = connect_db(None)
+    my_cursor.execute('SHOW DATABASES;')
+    [print(db[0]) for db in my_cursor]
+    my_cursor.close()
+    _dbname = dbname if len(dbname) > 0 else str(input('Enter a db name to export: '))
+    dbname_export = ''.join([_dbname.split('.sql')[0], '_backup'])
+    path_dbname_export = f'{cfg.home}/{dbname_export}.sql' if destiny == '$HOME' else f'{destiny}/{dbname_export}.sql'
+    if os.path.isfile(path_dbname_export):
+        msg(f'\n{path_dbname_export} already existed!', 'warning')
+        option = str(input('Override file? y/n: '))
+        _exit(option)
+    msg(f'db password: {password}', 'success1')
+    # run_command(f'sudo -S mysqldump -u {cfg.db_username} -p {_dbname} > {path_dbname_export}')
+    run_command(f'sudo mysqldump -u root {_dbname} > {path_dbname_export}')
+
+    if os.path.isfile(path_dbname_export):
+        with open(path_dbname_export, 'r') as file:
+            lines = file.readlines()
+            if len(lines) == 0:
+                msg(f'Failure Export {path_dbname_export}!', 'fail')
+            else:
+                msg(f'Successfully Export db -> {path_dbname_export}')
+                run_command(f'nautilus {path_dbname_export}')
+    create_backup_db(_dbname, dbname_export)
+
+
+def import_mysql_db():
+    pass
+
+
+def create_backup_db(dbname, dbBackupName):
+    if dbname == dbBackupName:
+        msg('dbname and db backup name are the SAME!', 'warning')
+        msg('Failure Create db backup!', 'fail')
+        _exit('n')
+    msg(f'\nCreating backup database for {dbname}', 'warning')
+    my_cursor = connect_db(dbname)
+    my_cursor.execute('SHOW TABLES;')
+    tbl_names = [record[0] for record in my_cursor.fetchall()]
+    create_db(dbBackupName)
+    my_cursor.execute(f'USE {dbBackupName}')
+
+    for tbl in tbl_names:
+        try:
+            my_cursor.execute(f'CREATE TABLE {tbl} SELECT * FROM {dbname}.{tbl}')
+        except:
+            # create_folder(f'{os.getcwd()}/log_.txt')
+            # logging.basicConfig(filename='log_1.txt',
+            #                     filemode='a',
+            #                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+            #                     datefmt='%H:%M:%S',
+            #                     level=logging.DEBUG)
+            # create logger with 'spam_application'
+            logger = logging.getLogger('spam_application')
+            logger.setLevel(logging.DEBUG)
+            # create file handler which logs even debug messages
+            fh = logging.FileHandler('spam.log')
+            fh.setLevel(logging.DEBUG)
+            logger.addHandler(fh)
+            pass
+    msg(f'Successfully Import data -> {dbBackupName}')
+    my_cursor.close()
+
+
+def connect_db(dbname=None):
+    return pymysql.connect(
+        host=host,
+        user=username,
+        password=password,
+        database=dbname
+    ).cursor()

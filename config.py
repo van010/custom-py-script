@@ -2,7 +2,9 @@
 # ================================================
 # directories
 # ================================================
+laptop_name = 'vangogh'
 destination = '/home/vangogh/Downloads'
+home = f'/home/{laptop_name}'
 # destination = '/media/vanhs/084ad0f6-fe03-4469-aa8f-a69b6e9ec3ad/home/vangogh/Downloads'
 server_path = '/var/www/html/dev'
 video_path = '/home/vangogh/Downloads/Video'
