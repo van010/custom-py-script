@@ -155,6 +155,11 @@ def import_mysql_db(dbname='', source=''):
     getattr(utils, 'import_mysql_db')(dbname, source)
 
 
+def clone_site(source_path=''):
+    utils.msg(f'Cloning site...')
+    getattr(utils, 'clone_site')(source_path)
+
+
 def list_all_tasks():
     all_tasks = list_to_do(0)[0]
     return all_tasks

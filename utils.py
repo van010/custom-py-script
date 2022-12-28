@@ -6,6 +6,7 @@ import logging
 import config as cfg
 from zipfile import ZipFile
 from time import sleep
+from alive_progress import alive_bar
 
 
 current_path = os.getcwd()
@@ -482,6 +483,7 @@ def convert_to_jpg(destiny, format='jpg'):
     # run_command(f'cd {destiny}')
 
 
+# utilspy 13 fixbugs_j4_morgan_enthu23
 def export_mysql_db(dbname, destiny):
     my_cursor = connect_db(None)
     my_cursor.execute('SHOW DATABASES;')
@@ -509,7 +511,38 @@ def export_mysql_db(dbname, destiny):
     create_backup_db(_dbname, dbname_export)
 
 
-def import_mysql_db():
+# utilspy 14 test_123 /home/vangogh/fixbugs_j3_k2_agency_backup.sql
+def import_mysql_db(dbname, dataSql):
+    msg('In developing', 'warning')
+    _exit('n')
+    _dataSql = dataSql if len(dataSql) > 0 else str(input('Enter path to Data.sql: '))
+    if not os.path.isfile(_dataSql):
+        msg(f'{_dataSql} isn\'t exist!', 'warning')
+        _exit('n')
+    create_db(dbname)
+    cursor = connect_db(dbname)
+    # cursor.execute(f'USE {dbname};')
+    cursor.execute('SHOW TABLES;')
+    [print(tbl[0]) for tbl in cursor.fetchall()]
+    cursor.execute(f'USE {dbname};')
+    # cursor.execute(f'SOURCE {dataSql} ;')
+
+    fd = open(dataSql, 'r')
+    sqlFile = fd.read()
+    fd.close()
+    sqlCommands = sqlFile.split(';')
+
+    total = len(sqlCommands)
+    with alive_bar(total, dual_line=True, title='Run Script') as bar:
+        for command in sqlCommands:
+            try:
+                if command.strip() != '':
+                    cursor.execute(command)
+                    sleep(0.05)
+            except command:
+                print("Command skipped: ", command)
+            bar()
+    cursor.close()
     pass
 
 
@@ -525,24 +558,26 @@ def create_backup_db(dbname, dbBackupName):
     create_db(dbBackupName)
     my_cursor.execute(f'USE {dbBackupName}')
 
-    for tbl in tbl_names:
-        try:
-            my_cursor.execute(f'CREATE TABLE {tbl} SELECT * FROM {dbname}.{tbl}')
-        except:
-            # create_folder(f'{os.getcwd()}/log_.txt')
-            # logging.basicConfig(filename='log_1.txt',
-            #                     filemode='a',
-            #                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-            #                     datefmt='%H:%M:%S',
-            #                     level=logging.DEBUG)
-            # create logger with 'spam_application'
-            logger = logging.getLogger('spam_application')
-            logger.setLevel(logging.DEBUG)
-            # create file handler which logs even debug messages
-            fh = logging.FileHandler('spam.log')
-            fh.setLevel(logging.DEBUG)
-            logger.addHandler(fh)
-            pass
+    with alive_bar(len(tbl_names), dual_line=True, title='Run Script') as bar:
+        for tbl in tbl_names:
+            try:
+                my_cursor.execute(f'CREATE TABLE {tbl} SELECT * FROM {dbname}.{tbl}')
+            except:
+                # create_folder(f'{os.getcwd()}/log_.txt')
+                # logging.basicConfig(filename='log_1.txt',
+                #                     filemode='a',
+                #                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                #                     datefmt='%H:%M:%S',
+                #                     level=logging.DEBUG)
+                # create logger with 'spam_application'
+                logger = logging.getLogger('spam_application')
+                logger.setLevel(logging.DEBUG)
+                # create file handler which logs even debug messages
+                fh = logging.FileHandler('spam.log')
+                fh.setLevel(logging.DEBUG)
+                logger.addHandler(fh)
+                pass
+            bar()
     msg(f'Successfully Import data -> {dbBackupName}')
     my_cursor.close()
 
