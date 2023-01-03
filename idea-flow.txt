@@ -1,0 +1,6 @@
+classify all files based on file formats.
+	+ group all files with each format and put to the format-folder,
+		all folders inside parent-folder
+	+ move all file to the parent folder
+		ex: jpg, jpeg,... -> move to ~/Pictures
+			.docx, txt,... -> move to ~/Documents,...
